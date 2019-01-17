@@ -114,7 +114,7 @@ module RailsSettings
         return Default.instance if starting_with.nil?
         if Thread.current[:language]
           starting_with = starting_with.sub("#{Thread.current[:language]}|", '')
-          Default.instance.select { |key, _| key.to_s.start_with?(starting_with) }.map{ |key, _| key = "#{Thread.current[:language]}|#{key}" }
+          Default.instance.select { |key, _| key.to_s.start_with?(starting_with) }.map{ |key, value| ["#{Thread.current[:language]}|#{key}", value] }.to_h
         else
           Default.instance.select { |key, _| key.to_s.start_with?(starting_with) }
         end

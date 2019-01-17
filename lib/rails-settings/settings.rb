@@ -112,7 +112,12 @@ module RailsSettings
       def default_settings(starting_with = nil)
         return {} unless Default.enabled?
         return Default.instance if starting_with.nil?
-        Default.instance.select { |key, _| key.to_s.start_with?(starting_with) }
+        if Thread.current[:language].present?
+          starting_with = starting_with.sub("#{Thread.current[:language]}|", '')
+          Default.instance.select { |key, _| key.to_s.start_with?(starting_with) }.map{ |key, _| key = "#{Thread.current[:language]}|#{key}" }
+        else
+          Default.instance.select { |key, _| key.to_s.start_with?(starting_with) }
+        end
       end
     end
   end

@@ -72,6 +72,7 @@ module RailsSettings
 
         record = object(var_name) || thing_scoped.new(var: var_name)
         record.value = value
+        record.web_localization_id = WebLocalization.current.id if Thread.current[:language].present?
         record.save!
 
         value
@@ -96,7 +97,11 @@ module RailsSettings
       end
 
       def thing_scoped
-        unscoped.where('thing_type is NULL and thing_id is NULL')
+        if Thread.current[:language].present?
+          unscoped.where('thing_type is NULL and thing_id is NULL and HEX(web_localization_id) = ?', Thread.current[:language].gsub('-',''))
+        else
+          unscoped.where('thing_type is NULL and thing_id is NULL')
+        end
       end
 
       def source(filename)
@@ -112,12 +117,7 @@ module RailsSettings
       def default_settings(starting_with = nil)
         return {} unless Default.enabled?
         return Default.instance if starting_with.nil?
-        if Thread.current[:language]
-          starting_with = starting_with.sub("#{Thread.current[:language]}|", '')
-          Default.instance.select { |key, _| key.to_s.start_with?(starting_with) }.map{ |key, value| ["#{Thread.current[:language]}|#{key}", value] }.to_h
-        else
-          Default.instance.select { |key, _| key.to_s.start_with?(starting_with) }
-        end
+        Default.instance.select { |key, _| key.to_s.start_with?(starting_with) }
       end
     end
   end

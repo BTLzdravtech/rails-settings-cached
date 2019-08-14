@@ -99,6 +99,8 @@ module RailsSettings
       def thing_scoped
         if Thread.current[:language].present?
           unscoped.where('thing_type is NULL and thing_id is NULL and HEX(web_localization_id) = ?', Thread.current[:language].gsub('-',''))
+        elsif method_defined?(:web_localization_id) && WebLocalization.current.present?
+          all.where('thing_type is NULL and thing_id is NULL')
         else
           unscoped.where('thing_type is NULL and thing_id is NULL')
         end

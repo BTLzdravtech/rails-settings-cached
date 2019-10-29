@@ -1,6 +1,6 @@
 module RailsSettings
   class Settings < ActiveRecord::Base
-    self.table_name = table_name_prefix + 'settings'
+    self.table_name = table_name_prefix + "settings"
 
     class SettingNotFound < RuntimeError; end
 
@@ -24,8 +24,8 @@ module RailsSettings
         super(method, *args)
       rescue NoMethodError
         # set a value for a variable
-        if method_name[-1] == '='
-          var_name = method_name.sub('=', '')
+        if method_name[-1] == "="
+          var_name = method_name.sub("=", "")
           value = args.first
           self[var_name] = value
         else
@@ -46,7 +46,7 @@ module RailsSettings
 
       # retrieve all settings as a hash (optionally starting with a given namespace)
       def get_all(starting_with = nil)
-        vars = thing_scoped.select('var, value')
+        vars = thing_scoped.select("var, value")
         vars = vars.where("var LIKE '#{starting_with}%'") if starting_with
         result = {}
         vars.each { |record| result[record.var] = record.value }
@@ -61,6 +61,8 @@ module RailsSettings
 
       # get a setting value by [] notation
       def [](var_name)
+        return Default[var_name] unless rails_initialized?
+
         val = object(var_name)
         return val.value if val
         return Default[var_name] if Default.enabled?
@@ -91,7 +93,6 @@ module RailsSettings
       end
 
       def object(var_name)
-        # return nil unless rails_initialized?
         return nil unless table_exists?
         thing_scoped.where(var: var_name.to_s).first
       end

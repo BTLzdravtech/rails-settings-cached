@@ -98,7 +98,7 @@ module RailsSettings
       end
 
       def thing_scoped
-        if method_defined?(:web_localization_id)
+        if column_names.include? 'web_localization_id'
           all.where('thing_type is NULL and thing_id is NULL')
         else
           unscoped.where('thing_type is NULL and thing_id is NULL')
